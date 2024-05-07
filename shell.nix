@@ -26,13 +26,14 @@ let
     inotify-tools
 
     (writeShellScriptBin "run-tests" ''
+      set -e
       pytest . --cov starlette_compress --cov-report xml
       mypy .
     '')
     (writeShellScriptBin "watch-tests" ''
-      run-tests
+      run-tests || true
       while inotifywait -e close_write ./**/*.py; do
-        run-tests
+        run-tests || true
       done
     '')
     (writeShellScriptBin "nixpkgs-update" ''

@@ -38,11 +38,6 @@ class CompressMiddleware:
         '_gzip',
     )
 
-    app: ASGIApp
-    _zstd: _ZstdResponder | None
-    _brotli: _BrotliResponder | None
-    _gzip: _GZipResponder | None
-
     def __init__(
         self,
         app: ASGIApp,
@@ -56,7 +51,7 @@ class CompressMiddleware:
         gzip_level: int = 4,
     ) -> None:
         self.app = app
-        self._zstd = _ZstdResponder(app, minimum_size, ZstdCompressor(level=zstd_level)) if zstd else None
+        self._zstd = _ZstdResponder(app, minimum_size, zstd_level) if zstd else None
         self._brotli = _BrotliResponder(app, minimum_size, brotli_quality) if brotli else None
         self._gzip = _GZipResponder(app, minimum_size, gzip_level) if gzip else None
 
@@ -87,13 +82,15 @@ class _ZstdResponder:
     __slots__ = (
         'app',
         'minimum_size',
+        'level',
         'compressor',
     )
 
-    def __init__(self, app: ASGIApp, minimum_size: int, compressor: ZstdCompressor) -> None:
+    def __init__(self, app: ASGIApp, minimum_size: int, level: int) -> None:
         self.app = app
         self.minimum_size = minimum_size
-        self.compressor = compressor
+        self.level = level
+        self.compressor = ZstdCompressor(level=level)
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         start_message: Message | None = None
@@ -149,7 +146,7 @@ class _ZstdResponder:
                 content_length: int = int(headers.get('Content-Length', -1))
                 del headers['Content-Length']
                 await send(start_message)
-                chunker = self.compressor.chunker(content_length)
+                chunker = ZstdCompressor(level=self.level).chunker(content_length)
 
             # streaming
             for chunk in chunker.compress(body):
@@ -169,7 +166,6 @@ class _BrotliResponder:
         'app',
         'minimum_size',
         'quality',
-        'compressor',
     )
 
     def __init__(self, app: ASGIApp, minimum_size: int, quality: int) -> None:

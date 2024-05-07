@@ -19,8 +19,8 @@ from starlette.types import ASGIApp
 from starlette_compress import (
     CompressMiddleware,
     _parse_accept_encoding,
-    deregister_compress_content_type,
-    register_compress_content_type,
+    add_compress_type,
+    remove_compress_type,
 )
 
 TestClientFactory = Callable[[ASGIApp], TestClient]
@@ -205,7 +205,7 @@ def test_compress_registered_content_type(test_client_factory: TestClientFactory
         assert 'Content-Encoding' not in response.headers
         assert int(response.headers['Content-Length']) == 4000
 
-    register_compress_content_type('test/test')
+    add_compress_type('test/test')
 
     for encoding in ('gzip', 'br', 'zstd'):
         response = client.get('/', headers={'accept-encoding': encoding})
@@ -213,7 +213,7 @@ def test_compress_registered_content_type(test_client_factory: TestClientFactory
         assert response.headers['Content-Encoding'] == encoding
         assert int(response.headers['Content-Length']) < 4000
 
-    deregister_compress_content_type('test/test')
+    remove_compress_type('test/test')
 
     for encoding in ('gzip', 'br', 'zstd'):
         response = client.get('/', headers={'accept-encoding': encoding})

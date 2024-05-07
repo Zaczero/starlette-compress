@@ -82,8 +82,8 @@ app.add_middleware(CompressMiddleware, zstd_level=6, brotli_quality=6, gzip_leve
 Manage the supported content-types. Unknown response types are not compressed. [Check here](https://github.com/Zaczero/starlette-compress/blob/main/starlette_compress/__init__.py) for the default configuration.
 
 ```py
-from starlette_compress import register_compress_content_type, deregister_compress_content_type
+from starlette_compress import add_compress_type, remove_compress_type
 
-register_compress_content_type("application/my-custom-type")
-deregister_compress_content_type("application/json")
+add_compress_type("application/my-custom-type")
+remove_compress_type("application/json")
 ```

@@ -393,16 +393,16 @@ _compress_content_types: set[str] = {
 }
 
 
-def register_compress_content_type(content_type: str) -> None:
+def add_compress_type(content_type: str) -> None:
     """
-    Register a new content type to be compressed.
+    Add a new content-type to be compressed.
     """
     _compress_content_types.add(content_type)
 
 
-def deregister_compress_content_type(content_type: str) -> None:
+def remove_compress_type(content_type: str) -> None:
     """
-    Deregister a content type from being compressed.
+    Remove a content-type from being compressed.
     """
     _compress_content_types.discard(content_type)
 
@@ -417,11 +417,11 @@ def _is_start_message_satisfied(message: Message) -> bool:
     if 'Content-Encoding' in headers:
         return False
 
-    # content type header must be present
+    # content-type header must be present
     content_type = headers.get('Content-Type')
     if not content_type:
         return False
 
-    # must be a compressible content type
+    # must be a compressible content-type
     basic_content_type = content_type.partition(';')[0].strip()
     return basic_content_type in _compress_content_types

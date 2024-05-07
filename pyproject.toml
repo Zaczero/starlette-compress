@@ -22,7 +22,7 @@ license = "Unlicense"
 name = "starlette-compress"
 readme = "README.md"
 repository = "https://github.com/Zaczero/starlette-compress"
-version = "0.1.5.3"
+version = "0.1.5.4"
 
 [tool.poetry.dependencies]
 brotli = {version = ">=1", markers = "platform_python_implementation == 'CPython'"}

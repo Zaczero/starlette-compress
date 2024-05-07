@@ -10,7 +10,7 @@
 - Compatible with `asyncio` and `trio` backends
 - ZStd, Brotli, and GZip compression
 - Sensible default configuration
-- [The Unlicense](https://unlicense.org) - public domain dedication
+- [The Unlicense](https://unlicense.org) — public domain dedication
 - [Semantic Versioning](https://semver.org) compliance
 
 ## Installation
@@ -19,7 +19,7 @@
 pip install starlette-compress
 ```
 
-## Example
+## Basic Usage
 
 ### Starlette
 
@@ -37,7 +37,7 @@ app = Starlette(routes=..., middleware=middleware)
 
 ### FastAPI
 
-starlette-compress is compatible with FastAPI.
+You can use starlette-compress with [FastAPI](https://fastapi.tiangolo.com) too:
 
 ```py
 from fastapi import FastAPI
@@ -47,11 +47,11 @@ app = FastAPI()
 app.add_middleware(CompressMiddleware)
 ```
 
-## Guide
+## Advanced Usage
 
-### Changing the minimum length of the response to compress
+### Changing Minimum Response Size
 
-To change the minimum length of the response to compress, use the `minimum_size` parameter. The default is 500 bytes.
+Control the minimum size of the response to compress. By default, responses must be at least 500 bytes to be compressed.
 
 ```py
 # Starlette
@@ -63,20 +63,27 @@ middleware = [
 app.add_middleware(CompressMiddleware, minimum_size=1000)
 ```
 
-### Registering a new content-type for compression
+### Tuning Compression Levels
 
-If you want to compress a content-type that is not registered by default, you can use the `register_compress_content_type` method.
+Adjust the compression levels for each algorithm. Higher levels mean smaller files but slower compression. Default level is 4 for all algorithms.
 
 ```py
-from starlette_compress import register_compress_content_type
+# Starlette
+middleware = [
+    Middleware(CompressMiddleware, zstd_level=6, brotli_quality=6, gzip_level=6)
+]
 
-register_compress_content_type("application/my-custom-type")
+# FastAPI
+app.add_middleware(CompressMiddleware, zstd_level=6, brotli_quality=6, gzip_level=6)
 ```
 
-You can also exclude a content-type from being compressed with the `deregister_compress_content_type` method.
+### Supporting Custom Content-Types
+
+Manage the supported content-types. Unknown response types are not compressed. [Check here](https://github.com/Zaczero/starlette-compress/blob/main/starlette_compress/__init__.py) for the default configuration.
 
 ```py
-from starlette_compress import deregister_compress_content_type
+from starlette_compress import register_compress_content_type, deregister_compress_content_type
 
-deregister_compress_content_type("application/my-custom-type")
+register_compress_content_type("application/my-custom-type")
+deregister_compress_content_type("application/json")
 ```

@@ -23,7 +23,7 @@ let
     wrappedPython
     poetry
     ruff
-    inotify-tools
+    fswatch
 
     (writeShellScriptBin "run-tests" ''
       set -e
@@ -32,7 +32,7 @@ let
     '')
     (writeShellScriptBin "watch-tests" ''
       run-tests || true
-      while inotifywait -e close_write ./**/*.py; do
+      while fswatch -1 --latency 0.1 --event Updated --recursive --include "\.py$" .; do
         run-tests || true
       done
     '')

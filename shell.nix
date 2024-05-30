@@ -27,8 +27,8 @@ let
 
     (writeShellScriptBin "run-tests" ''
       set -e
-      pytest . --cov starlette_compress --cov-report xml
-      mypy .
+      python -m pytest . --cov starlette_compress --cov-report xml
+      python -m mypy .
     '')
     (writeShellScriptBin "watch-tests" ''
       run-tests || true

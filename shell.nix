@@ -2,7 +2,7 @@
 
 let
   # Update packages with `nixpkgs-update` command
-  pkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/860e65d27036476edfb85dd847d982277880b143.tar.gz") { };
+  pkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/ac82a513e55582291805d6f09d35b6d8b60637a1.tar.gz") { };
 
   pythonLibs = with pkgs; [
     stdenv.cc.cc.lib

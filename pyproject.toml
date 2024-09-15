@@ -8,36 +8,46 @@ classifiers = [
   "Intended Audience :: Developers",
   "License :: OSI Approved :: The Unlicense (Unlicense)",
   "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
   "Topic :: Internet :: WWW/HTTP :: WSGI :: Middleware",
   "Typing :: Typed",
 ]
 description = "Compression middleware for Starlette - supporting ZStd, Brotli, and GZip"
-keywords = ["starlette", "middleware", "compression", "zstd", "brotli", "gzip", "http"]
+keywords = [
+  "brotli",
+  "compression",
+  "fastapi",
+  "gzip",
+  "http",
+  "middleware",
+  "starlette",
+  "zstd",
+]
 license = "Unlicense"
 name = "starlette-compress"
 readme = "README.md"
 repository = "https://github.com/Zaczero/starlette-compress"
-version = "1.0.1"
+version = "1.1.0"
 
 [tool.poetry.dependencies]
-brotli = {version = ">=1", markers = "platform_python_implementation == 'CPython'"}
-brotlicffi = {version = ">=1", markers = "platform_python_implementation != 'CPython'"}
+brotli = { version = ">=1", markers = "platform_python_implementation == 'CPython'" }
+brotlicffi = { version = ">=1", markers = "platform_python_implementation != 'CPython'" }
 python = "^3.8"
 starlette = "*"
 zstandard = ">=0.15"
 
 [tool.poetry.group.test.dependencies]
+brotlicffi = "^1.1.0.0"
 httpx = "<1"
-mypy = "^1.0.0"
 pytest = "^8.0.0"
 pytest-cov = "^5.0.0"
 trio = "<1"
-uvloop = "<1"
+uvloop = { version = "<1", allow-prereleases = true }
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
@@ -82,69 +92,69 @@ target-version = "py38"
 # custom + https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
 ignore = [
   "ARG001", # unused-function-argument
-  "SIM108", # if-else-block-instead-of-if-exp
-  "W191", # tab-indentation
-  "E111", # indentation-with-invalid-multiple
-  "E114", # indentation-with-invalid-multiple-comment
-  "E117", # over-indented
-  "E501", # line-too-long
-  "D206", # indent-with-spaces
-  "D300", # triple-single-quotes
-  "Q000", # bad-quotes-inline-string
-  "Q001", # bad-quotes-multiline-string
-  "Q002", # bad-quotes-docstring
-  "Q003", # avoidable-escaped-quote
   "COM812", # missing-trailing-comma
   "COM819", # prohibited-trailing-comma
+  "D206",   # indent-with-spaces
+  "D300",   # triple-single-quotes
+  "E111",   # indentation-with-invalid-multiple
+  "E114",   # indentation-with-invalid-multiple-comment
+  "E117",   # over-indented
+  "E501",   # line-too-long
   "ISC001", # single-line-implicit-string-concatenation
   "ISC002", # multi-line-implicit-string-concatenation
-  "S101", # assert
+  "Q000",   # bad-quotes-inline-string
+  "Q001",   # bad-quotes-multiline-string
+  "Q002",   # bad-quotes-docstring
+  "Q003",   # avoidable-escaped-quote
+  "S101",   # assert
+  "SIM108", # if-else-block-instead-of-if-exp
   "TRY003", # raise-vanilla-args
+  "W191",   # tab-indentation
 ]
 # see https://docs.astral.sh/ruff/rules/ for rules documentation
 select = [
-  "A", # flake8-builtins
-  "ARG", # flake8-unused-arguments
+  "A",     # flake8-builtins
+  "ARG",   # flake8-unused-arguments
   "ASYNC", # flake8-async
-  "B", # flake8-bugbear
-  "C4", # flake8-comprehensions
-  "DTZ", # flake8-datetimez
-  "E4", # pycodestyle
+  "B",     # flake8-bugbear
+  "C4",    # flake8-comprehensions
+  "DTZ",   # flake8-datetimez
+  "E4",    # pycodestyle
   "E7",
   "E9",
-  "F", # pyflakes
-  "FA", # flake8-future-annotations
-  "FBT", # flake8-boolean-trap
-  "FLY", # flynt  # "FURB", # refurb
-  "G", # flake8-logging-format
-  "I", # isort
-  "ICN", # flake8-import-conventions
-  "INT", # flake8-gettext
-  "ISC", # flake8-implicit-str-concat
-  "LOG", # flake8-logging
-  "N", # pep8-naming
-  "NPY", # numpy
-  "Q", # flake8-quotes
-  "PERF", # perflint
-  "PGH", # pygrep-hooks
-  "PIE", # flake8-pie
-  "PT", # flake8-pytest-style
-  "PTH", # flake8-use-pathlib
-  "PYI", # flake8-pyi
-  "RSE", # flake8-raise
-  "RUF", # ruff
-  "S", # flake8-bandit
-  "SIM", # flake8-simplify
-  "SLF", # flake8-self
-  "SLOT", # flake8-slots
-  "T10", # flake8-debugger
-  "T20", # flake8-print
-  "TCH", # flake8-type-checking
-  "TID", # flake8-tidy-imports
-  "TRY", # tryceratops
-  "UP", # pyupgrade
+  "F",     # pyflakes
+  "FA",    # flake8-future-annotations
+  "FBT",   # flake8-boolean-trap
+  "FLY",   # flynt  # "FURB", # refurb
+  "G",     # flake8-logging-format
+  "I",     # isort
+  "ICN",   # flake8-import-conventions
+  "INT",   # flake8-gettext
+  "ISC",   # flake8-implicit-str-concat
+  "LOG",   # flake8-logging
+  "N",     # pep8-naming
+  "NPY",   # numpy
+  "PERF",  # perflint
+  "PGH",   # pygrep-hooks
+  "PIE",   # flake8-pie
+  "PT",    # flake8-pytest-style
+  "PTH",   # flake8-use-pathlib
+  "PYI",   # flake8-pyi
+  "Q",     # flake8-quotes
+  "RSE",   # flake8-raise
+  "RUF",   # ruff
+  "S",     # flake8-bandit
+  "SIM",   # flake8-simplify
+  "SLF",   # flake8-self
+  "SLOT",  # flake8-slots
+  "T10",   # flake8-debugger
+  "T20",   # flake8-print
+  "TCH",   # flake8-type-checking
+  "TID",   # flake8-tidy-imports
+  "TRY",   # tryceratops
+  "UP",    # pyupgrade
   "W6",
-  "YTT", # flake8-2020
+  "YTT",   # flake8-2020
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
@@ -168,22 +178,12 @@ multiline-quotes = "double"
 [tool.ruff.lint.isort]
 combine-as-imports = true
 
+[tool.pyright]
+include = ["starlette_compress", "tests"]
+pythonPlatform = "All"
+pythonVersion = "3.8"
+
 [tool.pytest.ini_options]
 addopts = "-ra --quiet --disable-pytest-warnings"
 minversion = "6.0"
-testpaths = [
-  "tests",
-]
-
-[tool.mypy]
-exclude = [
-  "tests",
-]
-ignore_missing_imports = true
-python_version = "3.8"
-strict = true
-warn_no_return = true
-warn_redundant_casts = true
-warn_return_any = true
-warn_unreachable = true
-warn_unused_ignores = true
+testpaths = ["tests"]

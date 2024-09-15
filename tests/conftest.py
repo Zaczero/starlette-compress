@@ -10,7 +10,7 @@ TestClientFactory = Callable[..., TestClient]
 
 
 # https://anyio.readthedocs.io/en/stable/testing.html#specifying-the-backends-to-run-on
-@pytest.fixture()
+@pytest.fixture
 def test_client_factory(
     anyio_backend_name: Literal['asyncio', 'trio'],
     anyio_backend_options: dict[str, Any],

@@ -2,7 +2,7 @@
 
 let
   # Update packages with `nixpkgs-update` command
-  pkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/ac82a513e55582291805d6f09d35b6d8b60637a1.tar.gz") { };
+  pkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/9299cdf978e15f448cf82667b0ffdd480b44ee48.tar.gz") { };
 
   pythonLibs = with pkgs; [
     stdenv.cc.cc.lib
@@ -10,35 +10,40 @@ let
   ];
 
   # Override LD_LIBRARY_PATH to load Python libraries
-  wrappedPython = with pkgs; symlinkJoin {
+  python' = with pkgs; symlinkJoin {
     name = "python";
-    paths = [ python312 ];
+    paths = [ python313 ];
     buildInputs = [ makeWrapper ];
     postBuild = ''
-      wrapProgram "$out/bin/python3.12" --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath pythonLibs}"
+      wrapProgram "$out/bin/python3.13" --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath pythonLibs}"
     '';
   };
 
   packages' = with pkgs; [
-    wrappedPython
+    coreutils
+    python'
     poetry
     ruff
-    fswatch
+    pyright
+    watchexec
 
     (writeShellScriptBin "run-tests" ''
       set -e
-      python -m pytest . --cov starlette_compress --cov-report xml
-      python -m mypy .
+      python -m pytest . \
+        --verbose \
+        --no-header \
+        --cov starlette_compress \
+        --cov-report "''${1:-xml}"
+      pyright
     '')
-    (writeShellScriptBin "watch-tests" ''
-      run-tests || true
-      while fswatch -1 --latency 0.1 --event Updated --recursive --include "\.py$" .; do
-        run-tests || true
-      done
-    '')
+    (writeShellScriptBin "watch-tests" "watchexec --watch starlette_compress --watch tests --exts py run-tests")
     (writeShellScriptBin "nixpkgs-update" ''
       set -e
-      hash=$(git ls-remote https://github.com/NixOS/nixpkgs nixpkgs-unstable | cut -f 1)
+      hash=$(
+        curl --silent --location \
+        https://prometheus.nixos.org/api/v1/query \
+        -d "query=channel_revision{channel=\"nixpkgs-unstable\"}" | \
+        grep --only-matching --extended-regexp "[0-9a-f]{40}")
       sed -i -E "s|/nixpkgs/archive/[0-9a-f]{40}\.tar\.gz|/nixpkgs/archive/$hash.tar.gz|" shell.nix
       echo "Nixpkgs updated to $hash"
     '')
@@ -47,11 +52,11 @@ let
   shell' = with pkgs; lib.optionalString isDevelopment ''
     current_python=$(readlink -e .venv/bin/python || echo "")
     current_python=''${current_python%/bin/*}
-    [ "$current_python" != "${wrappedPython}" ] && rm -r .venv
+    [ "$current_python" != "${python'}" ] && rm -rf .venv/
 
     echo "Installing Python dependencies"
     export POETRY_VIRTUALENVS_IN_PROJECT=1
-    poetry env use "${wrappedPython}/bin/python"
+    poetry env use "${python'}/bin/python"
     poetry install --compile
 
     echo "Activating Python virtual environment"

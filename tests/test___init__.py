@@ -7,7 +7,6 @@ from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.requests import Request
 from starlette.responses import (
-    ContentStream,
     PlainTextResponse,
     Response,
     StreamingResponse,
@@ -40,12 +39,6 @@ def test_compress_responses(test_client_factory: TestClientFactory):
     for encoding in ('gzip', 'br', 'zstd'):
         response = client.get('/', headers={'accept-encoding': encoding})
         assert response.status_code == 200
-
-        # httpx does not support zstd yet
-        # https://github.com/encode/httpx/pull/3139
-        if encoding == 'zstd':
-            response._text = zstandard.decompress(response.content).decode()  # noqa: SLF001
-
         assert response.text == 'x' * 4000
         assert response.headers['Content-Encoding'] == encoding
         assert int(response.headers['Content-Length']) < 4000
@@ -99,7 +92,7 @@ def test_compress_streaming_response(test_client_factory: TestClientFactory, chu
     chunk_count = 70
 
     def homepage(request: Request) -> StreamingResponse:
-        async def generator(count: int) -> ContentStream:
+        async def generator(count: int):
             for _ in range(count):
                 # enough entropy is required for successful chunks
                 yield random.getrandbits(8 * chunk_size).to_bytes(chunk_size, 'big')
@@ -117,12 +110,6 @@ def test_compress_streaming_response(test_client_factory: TestClientFactory, chu
     for encoding in ('gzip', 'br', 'zstd'):
         response = client.get('/', headers={'accept-encoding': encoding})
         assert response.status_code == 200
-
-        # httpx does not support zstd yet
-        # https://github.com/encode/httpx/pull/3139
-        if encoding == 'zstd':
-            response._content = zstandard.ZstdDecompressor().decompressobj().decompress(response.content)  # noqa: SLF001
-
         assert len(response.content) == chunk_count * chunk_size
         assert response.headers['Content-Encoding'] == encoding
         assert 'Content-Length' not in response.headers
@@ -130,7 +117,7 @@ def test_compress_streaming_response(test_client_factory: TestClientFactory, chu
 
 def test_compress_ignored_for_responses_with_encoding_set(test_client_factory: TestClientFactory):
     def homepage(request: Request) -> StreamingResponse:
-        async def generator(content: bytes, count: int) -> ContentStream:
+        async def generator(content: bytes, count: int):
             for _ in range(count):
                 yield content
 

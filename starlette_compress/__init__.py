@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from starlette.datastructures import Headers, MutableHeaders
 from zstandard import ZstdCompressor
 
-if platform.python_implementation() == 'CPython':
+if platform.python_implementation() == 'CPython' and not TYPE_CHECKING:
     try:
         import brotli
     except ModuleNotFoundError:
@@ -216,7 +216,7 @@ class _BrotliResponder:
 
                 if not more_body:
                     # one-shot
-                    compressed_body = brotli.compress(body, quality=self.quality)
+                    compressed_body: bytes = brotli.compress(body, quality=self.quality)
                     headers['Content-Length'] = str(len(compressed_body))
                     message['body'] = compressed_body
                     await send(start_message)

@@ -12,7 +12,6 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Topic :: Internet :: WWW/HTTP :: WSGI :: Middleware",
   "Typing :: Typed",
@@ -32,12 +31,12 @@ license = "Unlicense"
 name = "starlette-compress"
 readme = "README.md"
 repository = "https://github.com/Zaczero/starlette-compress"
-version = "1.1.0"
+version = "1.2.0"
 
 [tool.poetry.dependencies]
 brotli = { version = ">=1", markers = "platform_python_implementation == 'CPython'" }
 brotlicffi = { version = ">=1", markers = "platform_python_implementation != 'CPython'" }
-python = "^3.8"
+python = "^3.9"
 starlette = "*"
 zstandard = ">=0.15"
 
@@ -86,7 +85,7 @@ exclude = [
 
 indent-width = 4
 line-length = 120
-target-version = "py38"
+target-version = "py39"
 
 [tool.ruff.lint]
 # custom + https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules

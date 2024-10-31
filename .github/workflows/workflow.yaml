@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v27
+        uses: cachix/install-nix-action@v30
         with:
           nix_path: nixpkgs=channel:nixpkgs-24.05-darwin
 
@@ -50,15 +50,6 @@ jobs:
           key: python-${{ env.CACHE_KEY }}-${{ hashFiles('poetry.lock') }}
           path: .venv
 
-      - name: Install dependencies
-        run: |
-          nix-shell --pure --run true
-
-      - name: Export Nix store cache
-        if: steps.nix-cache.outputs.cache-hit != 'true'
-        run: |
-          nix-store --export $(find /nix/store -maxdepth 1 -name '*-*') > /tmp/nix-cache
-
       - name: Assert tag name matches version
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
         run: |
@@ -83,6 +74,11 @@ jobs:
         with:
           name: dist-${{ runner.os }}
           path: dist/
+
+      - name: Export Nix store cache
+        if: steps.nix-cache.outputs.cache-hit != 'true'
+        run: |
+          nix-store --export $(find /nix/store -maxdepth 1 -name '*-*') > /tmp/nix-cache
 
   publish-pypi:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')

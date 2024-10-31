@@ -180,7 +180,7 @@ combine-as-imports = true
 [tool.pyright]
 include = ["starlette_compress", "tests"]
 pythonPlatform = "All"
-pythonVersion = "3.8"
+pythonVersion = "3.9"
 
 [tool.pytest.ini_options]
 addopts = "-ra --quiet --disable-pytest-warnings"

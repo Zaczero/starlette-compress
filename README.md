@@ -6,7 +6,7 @@
 
 **starlette-compress** is a fast and simple middleware for compressing responses in [Starlette](https://www.starlette.io). It supports more compression algorithms than Starlette's built-in GZipMiddleware, and has more sensible defaults.
 
-- Python 3.8+ support
+- Python 3.9+ support
 - Compatible with `asyncio` and `trio` backends
 - ZStd, Brotli, and GZip compression
 - Sensible default configuration

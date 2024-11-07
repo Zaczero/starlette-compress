@@ -446,5 +446,5 @@ def _is_start_message_satisfied(message: Message) -> bool:
         return False
 
     # must be a compressible content-type
-    basic_content_type = content_type.partition(';')[0].strip()
+    basic_content_type = content_type.split(';', maxsplit=1)[0].strip()
     return basic_content_type in _compress_content_types

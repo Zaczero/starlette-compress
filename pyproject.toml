@@ -31,7 +31,7 @@ license = "Unlicense"
 name = "starlette-compress"
 readme = "README.md"
 repository = "https://github.com/Zaczero/starlette-compress"
-version = "1.2.0"
+version = "1.2.1"
 
 [tool.poetry.dependencies]
 brotli = { version = ">=1", markers = "platform_python_implementation == 'CPython'" }
@@ -156,12 +156,8 @@ select = [
   "YTT",   # flake8-2020
 ]
 
-# Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
 unfixable = []
-
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.ruff.format]
 indent-style = "space"

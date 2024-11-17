@@ -31,12 +31,12 @@ license = "Unlicense"
 name = "starlette-compress"
 readme = "README.md"
 repository = "https://github.com/Zaczero/starlette-compress"
-version = "1.2.1"
+version = "1.3.0"
 
 [tool.poetry.dependencies]
 brotli = { version = ">=1", markers = "platform_python_implementation == 'CPython'" }
 brotlicffi = { version = ">=1", markers = "platform_python_implementation != 'CPython'" }
-python = "^3.9"
+python = ">=3.9"
 starlette = "*"
 zstandard = ">=0.15"
 
@@ -46,41 +46,21 @@ coverage = "^7.0.0"
 httpx = "<1"
 pytest = "^8.0.0"
 trio = "<1"
-uvloop = { version = "<1", allow-prereleases = true }
+uvloop = "<1"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core"]
 
 [tool.ruff]
-# Exclude a variety of commonly ignored directories.
 exclude = [
-  ".bzr",
   ".direnv",
-  ".eggs",
   ".git",
-  ".git-rewrite",
-  ".hg",
-  ".ipynb_checkpoints",
-  ".mypy_cache",
-  ".nox",
-  ".pants.d",
-  ".pyenv",
+  ".github",
   ".pytest_cache",
-  ".pytype",
   ".ruff_cache",
-  ".svn",
-  ".tox",
   ".venv",
   ".vscode",
-  "__pypackages__",
-  "_build",
-  "buck-out",
-  "build",
-  "dist",
-  "node_modules",
-  "site-packages",
-  "venv",
 ]
 
 indent-width = 4
@@ -88,7 +68,6 @@ line-length = 120
 target-version = "py39"
 
 [tool.ruff.lint]
-# custom + https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
 ignore = [
   "ARG001", # unused-function-argument
   "COM812", # missing-trailing-comma
@@ -110,7 +89,7 @@ ignore = [
   "TRY003", # raise-vanilla-args
   "W191",   # tab-indentation
 ]
-# see https://docs.astral.sh/ruff/rules/ for rules documentation
+# see https://docs.astral.sh/ruff/rules/
 select = [
   "A",     # flake8-builtins
   "ARG",   # flake8-unused-arguments
@@ -124,7 +103,8 @@ select = [
   "F",     # pyflakes
   "FA",    # flake8-future-annotations
   "FBT",   # flake8-boolean-trap
-  "FLY",   # flynt  # "FURB", # refurb
+  "FLY",   # flynt
+  "FURB",  # refurb
   "G",     # flake8-logging-format
   "I",     # isort
   "ICN",   # flake8-import-conventions
@@ -136,6 +116,9 @@ select = [
   "PERF",  # perflint
   "PGH",   # pygrep-hooks
   "PIE",   # flake8-pie
+  "PLC",   # pylint
+  "PLE",   # pylint
+  "PLW",   # pylint
   "PT",    # flake8-pytest-style
   "PTH",   # flake8-use-pathlib
   "PYI",   # flake8-pyi

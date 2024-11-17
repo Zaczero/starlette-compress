@@ -1,4 +1,4 @@
-name: Deployment
+name: CI
 
 on:
   push:
@@ -12,11 +12,9 @@ on:
 
 jobs:
   test:
-    name: Run tests
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-14]
-
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -53,8 +51,9 @@ jobs:
       - name: Assert tag name matches version
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
         run: |
-          nix-shell --pure --run "poetry version --short > version.txt"
-          version=$(cat version.txt)
+          nix-shell --pure --run "poetry version --short > .version.txt"
+          version=$(cat .version.txt)
+          rm .version.txt
           tag_name=${{ github.ref_name }}
           if [ "$version" != "$tag_name" ]; then
             echo "Tag name mismatch: $version != $tag_name"
@@ -62,12 +61,10 @@ jobs:
           fi
 
       - name: Run tests
-        run: |
-          nix-shell --pure --run "run-tests term"
+        run: nix-shell --pure --run "run-tests term"
 
       - name: Build distribution
-        run: |
-          nix-shell --pure --run "poetry build"
+        run: nix-shell --pure --run "poetry build"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -77,8 +74,7 @@ jobs:
 
       - name: Export Nix store cache
         if: steps.nix-cache.outputs.cache-hit != 'true'
-        run: |
-          nix-store --export $(find /nix/store -maxdepth 1 -name '*-*') > /tmp/nix-cache
+        run: nix-store --export $(find /nix/store -maxdepth 1 -name '*-*') > /tmp/nix-cache
 
   publish-pypi:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')

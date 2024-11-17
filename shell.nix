@@ -2,11 +2,11 @@
 
 let
   # Update packages with `nixpkgs-update` command
-  pkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/85f7e662eda4fa3a995556527c87b2524b691933.tar.gz") { };
+  pkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/c69a9bffbecde46b4b939465422ddc59493d3e4d.tar.gz") { };
 
   pythonLibs = with pkgs; [
-    stdenv.cc.cc.lib
     zlib.out
+    stdenv.cc.cc.lib
   ];
 
   # Override LD_LIBRARY_PATH to load Python libraries

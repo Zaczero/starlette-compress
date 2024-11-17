@@ -29,12 +29,20 @@ let
 
     (writeShellScriptBin "run-tests" ''
       set -e
-      python -m pytest . \
-        --verbose \
-        --no-header \
-        --cov starlette_compress \
-        --cov-report "''${1:-xml}"
       pyright
+      set +e
+      COVERAGE_CORE=sysmon python -m coverage run -m pytest \
+        --verbose \
+        --no-header
+      result=$?
+      set -e
+      if [ "$1" = "term" ]; then
+        python -m coverage report --skip-covered
+      else
+        python -m coverage xml --quiet
+      fi
+      python -m coverage erase
+      exit $result
     '')
     (writeShellScriptBin "watch-tests" "watchexec --watch starlette_compress --watch tests --exts py run-tests")
     (writeShellScriptBin "nixpkgs-update" ''

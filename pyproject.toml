@@ -42,9 +42,9 @@ zstandard = ">=0.15"
 
 [tool.poetry.group.test.dependencies]
 brotlicffi = "^1.1.0.0"
+coverage = "^7.0.0"
 httpx = "<1"
 pytest = "^8.0.0"
-pytest-cov = "^5.0.0"
 trio = "<1"
 uvloop = { version = "<1", allow-prereleases = true }
 
@@ -182,3 +182,6 @@ pythonVersion = "3.9"
 addopts = "-ra --quiet --disable-pytest-warnings"
 minversion = "6.0"
 testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["starlette_compress"]

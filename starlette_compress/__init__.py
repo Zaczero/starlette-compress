@@ -1,16 +1,16 @@
 from __future__ import annotations
 
 import gzip
-import platform
 import re
 from functools import lru_cache
 from io import BytesIO
+from platform import python_implementation
 from typing import TYPE_CHECKING
 
 from starlette.datastructures import Headers, MutableHeaders
 from zstandard import ZstdCompressor
 
-if platform.python_implementation() == 'CPython' and not TYPE_CHECKING:
+if python_implementation() == 'CPython' and not TYPE_CHECKING:
     try:
         import brotli
     except ModuleNotFoundError:
@@ -27,9 +27,7 @@ if TYPE_CHECKING:
 
 
 class CompressMiddleware:
-    """
-    Compression middleware for Starlette - supporting ZStd, Brotli, and GZip.
-    """
+    """Compression middleware for Starlette - supporting ZStd, Brotli, and GZip."""
 
     __slots__ = (
         'app',
@@ -339,10 +337,9 @@ _accept_encoding_re = re.compile(r'[a-z]{2,8}')
 
 @lru_cache(maxsize=128)
 def _parse_accept_encoding(accept_encoding: str) -> frozenset[str]:
-    """
-    Parse the accept encoding header and return a set of supported encodings.
+    """Parse the accept encoding header and return a set of supported encodings.
 
-    >>> parse_accept_encoding('br;q=1.0, gzip;q=0.8, *;q=0.1')
+    >>> _parse_accept_encoding('br;q=1.0, gzip;q=0.8, *;q=0.1')
     {'br', 'gzip'}
     """
     return frozenset(_accept_encoding_re.findall(accept_encoding))
@@ -417,23 +414,17 @@ _compress_content_types: set[str] = {
 
 
 def add_compress_type(content_type: str) -> None:
-    """
-    Add a new content-type to be compressed.
-    """
+    """Add a new content-type to be compressed."""
     _compress_content_types.add(content_type)
 
 
 def remove_compress_type(content_type: str) -> None:
-    """
-    Remove a content-type from being compressed.
-    """
+    """Remove a content-type from being compressed."""
     _compress_content_types.discard(content_type)
 
 
 def _is_start_message_satisfied(message: Message) -> bool:
-    """
-    Check if response should be compressed based on the start message.
-    """
+    """Check if response should be compressed based on the start message."""
     headers = Headers(raw=message['headers'])
 
     # must not already be compressed
@@ -448,3 +439,10 @@ def _is_start_message_satisfied(message: Message) -> bool:
     # must be a compressible content-type
     basic_content_type = content_type.split(';', maxsplit=1)[0].strip()
     return basic_content_type in _compress_content_types
+
+
+__all__ = (
+    'CompressMiddleware',
+    'add_compress_type',
+    'remove_compress_type',
+)

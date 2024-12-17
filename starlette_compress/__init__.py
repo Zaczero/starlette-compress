@@ -30,10 +30,10 @@ class CompressMiddleware:
     """Compression middleware for Starlette - supporting ZStd, Brotli, and GZip."""
 
     __slots__ = (
-        'app',
-        '_zstd',
         '_brotli',
         '_gzip',
+        '_zstd',
+        'app',
     )
 
     def __init__(
@@ -79,9 +79,9 @@ class CompressMiddleware:
 class _ZstdResponder:
     __slots__ = (
         'app',
-        'minimum_size',
-        'level',
         'compressor',
+        'level',
+        'minimum_size',
     )
 
     def __init__(self, app: ASGIApp, minimum_size: int, level: int) -> None:
@@ -241,8 +241,8 @@ class _BrotliResponder:
 class _GZipResponder:
     __slots__ = (
         'app',
-        'minimum_size',
         'level',
+        'minimum_size',
     )
 
     def __init__(self, app: ASGIApp, minimum_size: int, level: int) -> None:

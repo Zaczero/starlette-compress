@@ -6,7 +6,7 @@ classifiers = [
   "Framework :: AsyncIO",
   "Framework :: Trio",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: The Unlicense (Unlicense)",
+  "License :: OSI Approved :: Zero-Clause BSD (0BSD)",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -27,11 +27,11 @@ keywords = [
   "starlette",
   "zstd",
 ]
-license = "Unlicense"
+license = "0BSD"
 name = "starlette-compress"
 readme = "README.md"
 repository = "https://github.com/Zaczero/starlette-compress"
-version = "1.3.0"
+version = "1.4.0"
 
 [tool.poetry.dependencies]
 brotli = { version = ">=1", markers = "platform_python_implementation == 'CPython'" }

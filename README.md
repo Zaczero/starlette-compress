@@ -10,7 +10,7 @@
 - Compatible with `asyncio` and `trio` backends
 - ZStd, Brotli, and GZip compression
 - Sensible default configuration
-- [The Unlicense](https://unlicense.org) — public domain dedication
+- [Zero-Clause BSD](https://choosealicense.com/licenses/0bsd/) — public domain dedication
 - [Semantic Versioning](https://semver.org) compliance
 
 ## Installation

@@ -57,7 +57,7 @@ jobs:
       - name: Assert tag name matches version
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
         run: |
-          version=$(nix-shell --pure --run "hatch --no-color version")
+          version=$(nix-shell --pure --run "hatch version" 2>/dev/null | tail -n1)
           tag_name=${{ github.ref_name }}
           if [ "$version" != "$tag_name" ]; then
             echo "Tag name mismatch: $version != $tag_name"

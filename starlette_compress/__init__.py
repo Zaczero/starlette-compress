@@ -29,8 +29,6 @@ __version__ = '1.5.0'
 
 
 class CompressMiddleware:
-    """Compression middleware for Starlette - supporting ZStd, Brotli, and GZip."""
-
     __slots__ = (
         '_brotli',
         '_gzip',
@@ -51,6 +49,21 @@ class CompressMiddleware:
         gzip: bool = True,
         gzip_level: int = 4,
     ) -> None:
+        """Compression middleware supporting multiple algorithms.
+
+        The middleware automatically selects the best available compression method
+        based on the client's Accept-Encoding header. Compression methods are tried
+        in order: Zstandard, Brotli, Gzip, and finally no compression (identity).
+
+        :param app: ASGI application to wrap.
+        :param minimum_size: Minimum response size in bytes to apply compression.
+        :param zstd: Enable Zstandard compression.
+        :param zstd_level: Zstandard compression level. Valid values are all negative integers (faster) to 22 (best).
+        :param brotli: Enable Brotli compression.
+        :param brotli_quality: Brotli quality level, 0 (fastest) to 11 (best).
+        :param gzip: Enable Gzip compression.
+        :param gzip_level: Gzip compression level, 0 (fastest) to 9 (best).
+        """
         self.app = app
         self._zstd = _ZstdResponder(app, minimum_size, zstd_level) if zstd else None
         self._brotli = _BrotliResponder(app, minimum_size, brotli_quality) if brotli else None

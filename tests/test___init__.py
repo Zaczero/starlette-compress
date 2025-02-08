@@ -42,6 +42,7 @@ def test_compress_responses(test_client_factory: TestClientFactory):
         assert response.text == 'x' * 4000
         assert response.headers['Content-Encoding'] == encoding
         assert int(response.headers['Content-Length']) < 4000
+        assert response.headers['Vary'] == 'Accept-Encoding'
 
 
 def test_compress_not_in_accept_encoding(test_client_factory: TestClientFactory):
@@ -59,6 +60,7 @@ def test_compress_not_in_accept_encoding(test_client_factory: TestClientFactory)
     assert response.text == 'x' * 4000
     assert 'Content-Encoding' not in response.headers
     assert int(response.headers['Content-Length']) == 4000
+    assert response.headers['Vary'] == 'Accept-Encoding'
 
 
 def test_compress_ignored_for_small_responses(test_client_factory: TestClientFactory):
@@ -78,6 +80,7 @@ def test_compress_ignored_for_small_responses(test_client_factory: TestClientFac
         assert response.text == 'OK'
         assert 'Content-Encoding' not in response.headers
         assert int(response.headers['Content-Length']) == 2
+        assert 'Vary' not in response.headers
 
 
 @pytest.mark.parametrize(
@@ -113,6 +116,7 @@ def test_compress_streaming_response(test_client_factory: TestClientFactory, chu
         assert len(response.content) == chunk_count * chunk_size
         assert response.headers['Content-Encoding'] == encoding
         assert 'Content-Length' not in response.headers
+        assert response.headers['Vary'] == 'Accept-Encoding'
 
 
 def test_compress_ignored_for_responses_with_encoding_set(test_client_factory: TestClientFactory):
@@ -137,6 +141,7 @@ def test_compress_ignored_for_responses_with_encoding_set(test_client_factory: T
         assert response.text == 'x' * 4000
         assert response.headers['Content-Encoding'] == 'test'
         assert 'Content-Length' not in response.headers
+        assert 'Vary' not in response.headers
 
 
 def test_compress_ignored_for_missing_accept_encoding(test_client_factory: TestClientFactory):
@@ -154,6 +159,7 @@ def test_compress_ignored_for_missing_accept_encoding(test_client_factory: TestC
     assert response.text == 'x' * 4000
     assert 'Content-Encoding' not in response.headers
     assert int(response.headers['Content-Length']) == 4000
+    assert response.headers['Vary'] == 'Accept-Encoding'
 
 
 def test_compress_ignored_for_missing_content_type(test_client_factory: TestClientFactory):
@@ -173,6 +179,7 @@ def test_compress_ignored_for_missing_content_type(test_client_factory: TestClie
         assert response.text == 'x' * 4000
         assert 'Content-Encoding' not in response.headers
         assert int(response.headers['Content-Length']) == 4000
+        assert 'Vary' not in response.headers
 
 
 def test_compress_registered_content_type(test_client_factory: TestClientFactory):
@@ -191,6 +198,7 @@ def test_compress_registered_content_type(test_client_factory: TestClientFactory
         assert response.status_code == 200
         assert 'Content-Encoding' not in response.headers
         assert int(response.headers['Content-Length']) == 4000
+        assert 'Vary' not in response.headers
 
     add_compress_type('test/test')
 
@@ -199,6 +207,7 @@ def test_compress_registered_content_type(test_client_factory: TestClientFactory
         assert response.status_code == 200
         assert response.headers['Content-Encoding'] == encoding
         assert int(response.headers['Content-Length']) < 4000
+        assert response.headers['Vary'] == 'Accept-Encoding'
 
     remove_compress_type('test/test')
 
@@ -207,6 +216,7 @@ def test_compress_registered_content_type(test_client_factory: TestClientFactory
         assert response.status_code == 200
         assert 'Content-Encoding' not in response.headers
         assert int(response.headers['Content-Length']) == 4000
+        assert 'Vary' not in response.headers
 
 
 def test_parse_accept_encoding():

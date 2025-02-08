@@ -32,6 +32,7 @@ class CompressMiddleware:
     __slots__ = (
         '_brotli',
         '_gzip',
+        '_identity',
         '_zstd',
         'app',
     )
@@ -52,28 +53,23 @@ class CompressMiddleware:
         self._zstd = _ZstdResponder(app, minimum_size, zstd_level) if zstd else None
         self._brotli = _BrotliResponder(app, minimum_size, brotli_quality) if brotli else None
         self._gzip = _GZipResponder(app, minimum_size, gzip_level) if gzip else None
+        self._identity = _IdentityResponder(app, minimum_size)
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope['type'] != 'http':
-            await self.app(scope, receive, send)
-            return
+            return await self.app(scope, receive, send)
 
         accept_encoding = Headers(scope=scope).get('Accept-Encoding')
+        if accept_encoding:
+            accept_encodings = _parse_accept_encoding(accept_encoding)
+            if (self._zstd is not None) and 'zstd' in accept_encodings:
+                return await self._zstd(scope, receive, send)
+            if (self._brotli is not None) and 'br' in accept_encodings:
+                return await self._brotli(scope, receive, send)
+            if (self._gzip is not None) and 'gzip' in accept_encodings:
+                return await self._gzip(scope, receive, send)
 
-        if not accept_encoding:
-            await self.app(scope, receive, send)
-            return
-
-        accept_encodings = _parse_accept_encoding(accept_encoding)
-
-        if (self._zstd is not None) and 'zstd' in accept_encodings:
-            await self._zstd(scope, receive, send)
-        elif (self._brotli is not None) and 'br' in accept_encodings:
-            await self._brotli(scope, receive, send)
-        elif (self._gzip is not None) and 'gzip' in accept_encodings:
-            await self._gzip(scope, receive, send)
-        else:
-            await self.app(scope, receive, send)
+        return await self._identity(scope, receive, send)
 
 
 class _ZstdResponder:
@@ -328,6 +324,63 @@ class _GZipResponder:
                     'more_body': more_body,
                 }
             )
+
+        await self.app(scope, receive, wrapper)
+
+
+class _IdentityResponder:
+    __slots__ = (
+        'app',
+        'minimum_size',
+    )
+
+    def __init__(self, app: ASGIApp, minimum_size: int) -> None:
+        self.app = app
+        self.minimum_size = minimum_size
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        start_message: Message | None = None
+        headers_set: bool = False
+
+        async def wrapper(message: Message) -> None:
+            nonlocal start_message, headers_set
+
+            message_type: str = message['type']
+
+            # handle start message
+            if message_type == 'http.response.start':
+                if start_message is not None:
+                    raise AssertionError('Unexpected repeated http.response.start message')
+
+                if _is_start_message_satisfied(message):
+                    # capture start message and wait for response body
+                    start_message = message
+                    return
+                else:
+                    await send(message)
+                    return
+
+            # skip if start message is not satisfied or unknown message type
+            if start_message is None or message_type != 'http.response.body':
+                await send(message)
+                return
+
+            if not headers_set:
+                body: bytes = message.get('body', b'')
+                more_body: bool = message.get('more_body', False)
+
+                # skip compression for small responses
+                if not more_body and len(body) < self.minimum_size:
+                    await send(start_message)
+                    await send(message)
+                    return
+
+                headers = MutableHeaders(raw=start_message['headers'])
+                headers.add_vary_header('Accept-Encoding')
+                await send(start_message)
+                headers_set = True
+
+            await send(message)
 
         await self.app(scope, receive, wrapper)
 

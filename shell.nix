@@ -1,4 +1,4 @@
-{ isDevelopment ? true }:
+{}:
 
 let
   # Update packages with `nixpkgs-update` command
@@ -57,7 +57,7 @@ let
     '')
   ];
 
-  shell' = with pkgs; lib.optionalString isDevelopment ''
+  shell' = ''
     export PYTHONNOUSERSITE=1
     export TZ=UTC
 

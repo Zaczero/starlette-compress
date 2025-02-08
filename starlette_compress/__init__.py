@@ -25,6 +25,8 @@ if TYPE_CHECKING:
     from starlette.types import ASGIApp, Message, Receive, Scope, Send
     from zstandard import ZstdCompressionChunker
 
+__version__ = '1.5.0'
+
 
 class CompressMiddleware:
     """Compression middleware for Starlette - supporting ZStd, Brotli, and GZip."""

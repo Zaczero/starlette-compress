@@ -22,7 +22,8 @@ let
   packages' = with pkgs; [
     coreutils
     python'
-    poetry
+    uv
+    hatch
     ruff
     pyright
     watchexec
@@ -31,7 +32,7 @@ let
       set -e
       pyright
       set +e
-      COVERAGE_CORE=sysmon python -m coverage run -m pytest \
+      python -m coverage run -m pytest \
         --verbose \
         --no-header
       result=$?
@@ -59,16 +60,17 @@ let
 
   shell' = ''
     export PYTHONNOUSERSITE=1
+    export PYTHONPATH=""
     export TZ=UTC
+    export COVERAGE_CORE=sysmon
 
     current_python=$(readlink -e .venv/bin/python || echo "")
     current_python=''${current_python%/bin/*}
     [ "$current_python" != "${python'}" ] && rm -rf .venv/
 
     echo "Installing Python dependencies"
-    export POETRY_VIRTUALENVS_IN_PROJECT=1
-    poetry env use "${python'}/bin/python"
-    poetry install --compile
+    export UV_PYTHON="${python'}/bin/python"
+    uv sync --frozen
 
     echo "Activating Python virtual environment"
     source .venv/bin/activate

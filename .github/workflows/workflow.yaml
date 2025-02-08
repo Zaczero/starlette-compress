@@ -14,7 +14,7 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ ubuntu-latest, macos-latest ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -39,18 +39,25 @@ jobs:
         run: |
           nix-store --import < /tmp/nix-cache
 
-      - name: Cache Python venv
+      - name: Cache Python packages
         uses: actions/cache@v4
         with:
-          key: python-${{ env.CACHE_KEY }}-${{ hashFiles('poetry.lock') }}
-          path: .venv
+          key: python-${{ env.CACHE_KEY }}-${{ hashFiles('uv.lock') }}
+          path: ~/.cache/uv
+
+      - name: Install dependencies
+        run: |
+          nix-shell --pure --run true
+
+      - name: Export Nix store cache
+        if: steps.nix-cache.outputs.cache-hit != 'true'
+        run: |
+          nix-store --export $(find /nix/store -maxdepth 1 -name '*-*') > /tmp/nix-cache
 
       - name: Assert tag name matches version
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
         run: |
-          nix-shell --pure --run "poetry version --short > .version.txt"
-          version=$(cat .version.txt)
-          rm .version.txt
+          version=$(nix-shell --pure --run "hatch version")
           tag_name=${{ github.ref_name }}
           if [ "$version" != "$tag_name" ]; then
             echo "Tag name mismatch: $version != $tag_name"
@@ -61,17 +68,13 @@ jobs:
         run: nix-shell --pure --run "run-tests term"
 
       - name: Build distribution
-        run: nix-shell --pure --run "poetry build"
+        run: nix-shell --pure --run "uv build"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dist-${{ runner.os }}
           path: dist/
-
-      - name: Export Nix store cache
-        if: steps.nix-cache.outputs.cache-hit != 'true'
-        run: nix-store --export $(find /nix/store -maxdepth 1 -name '*-*') > /tmp/nix-cache
 
   publish-pypi:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
@@ -113,16 +116,16 @@ jobs:
           path: dist/
 
       - name: Sign with Sigstore
-        uses: sigstore/gh-action-sigstore-python@v2.1.1
+        uses: sigstore/gh-action-sigstore-python@v3.0.0
         with:
-          inputs: >-
+          inputs: |
             ./dist/*.tar.gz
             ./dist/*.whl
 
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: >-
+        run: |
           gh release create
           '${{ github.ref_name }}'
           --repo '${{ github.repository }}'
@@ -131,7 +134,7 @@ jobs:
       - name: Upload signed artifacts
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: >-
+        run: |
           gh release upload
           '${{ github.ref_name }}' dist/**
           --repo '${{ github.repository }}'

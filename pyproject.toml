@@ -1,5 +1,5 @@
-[tool.poetry]
-authors = ["Kamil Monicz <kamil@monicz.dev>"]
+[project]
+authors = [{ name = "Kamil Monicz", email = "kamil@monicz.dev" }]
 classifiers = [
   "Environment :: Web Environment",
   "Framework :: AnyIO",
@@ -16,6 +16,12 @@ classifiers = [
   "Topic :: Internet :: WWW/HTTP :: WSGI :: Middleware",
   "Typing :: Typed",
 ]
+dependencies = [
+  "brotli>=1; platform_python_implementation == 'CPython'",
+  "brotlicffi>=1; platform_python_implementation != 'CPython'",
+  "starlette",
+  "zstandard>=0.15",
+]
 description = "Compression middleware for Starlette - supporting ZStd, Brotli, and GZip"
 keywords = [
   "brotli",
@@ -31,38 +37,37 @@ license = "0BSD"
 name = "starlette-compress"
 readme = "README.md"
 repository = "https://github.com/Zaczero/starlette-compress"
-version = "1.4.0"
+requires-python = ">=3.9"
+dynamic = ["version"]
 
-[tool.poetry.dependencies]
-brotli = { version = ">=1", markers = "platform_python_implementation == 'CPython'" }
-brotlicffi = { version = ">=1", markers = "platform_python_implementation != 'CPython'" }
-python = ">=3.9"
-starlette = "*"
-zstandard = ">=0.15"
-
-[tool.poetry.group.test.dependencies]
-brotlicffi = "^1.1.0.0"
-coverage = "^7.0.0"
-httpx = "<1"
-pytest = "^8.0.0"
-trio = "<1"
-uvloop = "<1"
-
-[build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core"]
-
-[tool.ruff]
-exclude = [
-  ".direnv",
-  ".git",
-  ".github",
-  ".pytest_cache",
-  ".ruff_cache",
-  ".venv",
-  ".vscode",
+[dependency-groups]
+dev = [
+  "brotlicffi",
+  "coverage",
+  "httpx",
+  "pytest",
+  "trio",
+  "uvloop",
 ]
 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "starlette_compress/__init__.py"
+
+[tool.hatch.build]
+include = ["/starlette_compress/**/*.py"]
+
+[tool.uv]
+compile-bytecode = true
+package = true
+python-downloads = "never"
+python-preference = "only-system"
+cache-keys = [{ file = "pyproject.toml" }, { file = "starlette_compress/__init__.py" }]
+
+[tool.ruff]
 indent-width = 4
 line-length = 120
 target-version = "py39"
@@ -72,71 +77,70 @@ ignore = [
   "ARG001", # unused-function-argument
   "COM812", # missing-trailing-comma
   "COM819", # prohibited-trailing-comma
-  "D206",   # indent-with-spaces
-  "D300",   # triple-single-quotes
-  "E111",   # indentation-with-invalid-multiple
-  "E114",   # indentation-with-invalid-multiple-comment
-  "E117",   # over-indented
-  "E501",   # line-too-long
+  "D206", # indent-with-spaces
+  "D300", # triple-single-quotes
+  "E111", # indentation-with-invalid-multiple
+  "E114", # indentation-with-invalid-multiple-comment
+  "E117", # over-indented
+  "E501", # line-too-long
   "ISC001", # single-line-implicit-string-concatenation
   "ISC002", # multi-line-implicit-string-concatenation
-  "Q000",   # bad-quotes-inline-string
-  "Q001",   # bad-quotes-multiline-string
-  "Q002",   # bad-quotes-docstring
-  "Q003",   # avoidable-escaped-quote
-  "S101",   # assert
+  "Q000", # bad-quotes-inline-string
+  "Q001", # bad-quotes-multiline-string
+  "Q002", # bad-quotes-docstring
+  "Q003", # avoidable-escaped-quote
+  "S101", # assert
   "SIM108", # if-else-block-instead-of-if-exp
   "TRY003", # raise-vanilla-args
-  "W191",   # tab-indentation
+  "W191", # tab-indentation
 ]
 # see https://docs.astral.sh/ruff/rules/
 select = [
-  "A",     # flake8-builtins
-  "ARG",   # flake8-unused-arguments
+  "A", # flake8-builtins
+  "ARG", # flake8-unused-arguments
   "ASYNC", # flake8-async
-  "B",     # flake8-bugbear
-  "C4",    # flake8-comprehensions
-  "DTZ",   # flake8-datetimez
-  "E4",    # pycodestyle
+  "B", # flake8-bugbear
+  "C4", # flake8-comprehensions
+  "DTZ", # flake8-datetimez
+  "E4", # pycodestyle
   "E7",
   "E9",
-  "F",     # pyflakes
-  "FA",    # flake8-future-annotations
-  "FBT",   # flake8-boolean-trap
-  "FLY",   # flynt
-  "FURB",  # refurb
-  "G",     # flake8-logging-format
-  "I",     # isort
-  "ICN",   # flake8-import-conventions
-  "INT",   # flake8-gettext
-  "ISC",   # flake8-implicit-str-concat
-  "LOG",   # flake8-logging
-  "N",     # pep8-naming
-  "NPY",   # numpy
-  "PERF",  # perflint
-  "PGH",   # pygrep-hooks
-  "PIE",   # flake8-pie
-  "PLC",   # pylint
-  "PLE",   # pylint
-  "PLW",   # pylint
-  "PT",    # flake8-pytest-style
-  "PTH",   # flake8-use-pathlib
-  "PYI",   # flake8-pyi
-  "Q",     # flake8-quotes
-  "RSE",   # flake8-raise
-  "RUF",   # ruff
-  "S",     # flake8-bandit
-  "SIM",   # flake8-simplify
-  "SLF",   # flake8-self
-  "SLOT",  # flake8-slots
-  "T10",   # flake8-debugger
-  "T20",   # flake8-print
-  "TCH",   # flake8-type-checking
-  "TID",   # flake8-tidy-imports
-  "TRY",   # tryceratops
-  "UP",    # pyupgrade
+  "F", # pyflakes
+  "FA", # flake8-future-annotations
+  "FBT", # flake8-boolean-trap
+  "FLY", # flynt
+  "FURB", # refurb
+  "G", # flake8-logging-format
+  "I", # isort
+  "ICN", # flake8-import-conventions
+  "INT", # flake8-gettext
+  "ISC", # flake8-implicit-str-concat
+  "LOG", # flake8-logging
+  "N", # pep8-naming
+  "NPY", # numpy
+  "PERF", # perflint
+  "PIE", # flake8-pie
+  "PLC", # pylint
+  "PLE", # pylint
+  "PLW", # pylint
+  "PT", # flake8-pytest-style
+  "PTH", # flake8-use-pathlib
+  "PYI", # flake8-pyi
+  "Q", # flake8-quotes
+  "RSE", # flake8-raise
+  "RUF", # ruff
+  "S", # flake8-bandit
+  "SIM", # flake8-simplify
+  "SLF", # flake8-self
+  "SLOT", # flake8-slots
+  "T10", # flake8-debugger
+  "T20", # flake8-print
+  "TCH", # flake8-type-checking
+  "TID", # flake8-tidy-imports
+  "TRY", # tryceratops
+  "UP", # pyupgrade
   "W6",
-  "YTT",   # flake8-2020
+  "YTT", # flake8-2020
 ]
 
 fixable = ["ALL"]

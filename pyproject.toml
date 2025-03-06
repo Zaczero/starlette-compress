@@ -58,7 +58,6 @@ build-backend = "hatchling.build"
 path = "starlette_compress/__init__.py"
 
 [tool.uv]
-compile-bytecode = true
 package = true
 python-downloads = "never"
 python-preference = "only-system"

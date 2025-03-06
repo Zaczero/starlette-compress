@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from starlette.types import ASGIApp, Message, Receive, Scope, Send
     from zstandard import ZstdCompressionChunker
 
-__version__ = '1.5.0'
+__version__ = '1.5.1'
 
 
 class CompressMiddleware:

@@ -57,9 +57,6 @@ build-backend = "hatchling.build"
 [tool.hatch.version]
 path = "starlette_compress/__init__.py"
 
-[tool.hatch.build]
-include = ["/starlette_compress/**/*.py"]
-
 [tool.uv]
 compile-bytecode = true
 package = true

@@ -68,7 +68,7 @@ jobs:
           --pure --run "uv build"
 
       - name: Upload artifacts
-        if: matrix.newPython == 'true'
+        if: matrix.newPython == true
         uses: actions/upload-artifact@v4
         with:
           name: dist-${{ runner.os }}

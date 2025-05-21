@@ -55,13 +55,13 @@ jobs:
           fi
 
       - name: Run tests
-        run: nix-shell \
-          --arg newPython ${{ matrix.newPython }} \
+        run: nix-shell
+          --arg newPython ${{ matrix.newPython }}
           --pure --run "run-tests term"
 
       - name: Build distribution
-        run: nix-shell \
-          --arg newPython ${{ matrix.newPython }} \
+        run: nix-shell
+          --arg newPython ${{ matrix.newPython }}
           --pure --run "uv build"
 
       - name: Upload artifacts

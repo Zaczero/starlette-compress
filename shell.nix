@@ -21,6 +21,7 @@ let
 
   packages' = with pkgs; [
     coreutils
+    which
     file
     python'
     uv

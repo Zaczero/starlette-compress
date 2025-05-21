@@ -30,6 +30,7 @@ let
     watchexec
     libffi.dev
     libuv.dev
+    zstd.dev
 
     (writeShellScriptBin "run-tests" ''
       set -e

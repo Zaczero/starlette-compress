@@ -12,6 +12,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: 3.9",
   "Topic :: Internet :: WWW/HTTP :: WSGI :: Middleware",
   "Typing :: Typed",
@@ -20,7 +21,7 @@ dependencies = [
   "brotli>=1; platform_python_implementation == 'CPython'",
   "brotlicffi>=1; platform_python_implementation != 'CPython'",
   "starlette",
-  "zstandard>=0.15",
+  "zstandard>=0.15; python_version<'3.14'",
 ]
 description = "Compression middleware for Starlette - supporting ZStd, Brotli, and GZip"
 keywords = [
@@ -48,6 +49,7 @@ dev = [
   "pytest",
   "trio",
   "uvloop",
+  "zstandard",
 ]
 
 [build-system]
@@ -61,11 +63,14 @@ path = "starlette_compress/__init__.py"
 package = true
 python-downloads = "never"
 python-preference = "only-system"
-cache-keys = [{ file = "pyproject.toml" }, { file = "starlette_compress/__init__.py" }]
+cache-keys = [
+  { file = "pyproject.toml" },
+  { file = "starlette_compress/__init__.py" },
+]
 
 [tool.ruff]
 indent-width = 4
-line-length = 120
+line-length = 88
 target-version = "py39"
 
 [tool.ruff.lint]

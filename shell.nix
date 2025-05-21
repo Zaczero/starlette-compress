@@ -1,8 +1,8 @@
-{}:
+{ newPython ? true }:
 
 let
   # Update packages with `nixpkgs-update` command
-  pkgs =  import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/1da52dd49a127ad74486b135898da2cef8c62665.tar.gz") { };
+  pkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/045f019d0a439e699e6b0c081f561e47ffc4f363.tar.gz") { };
 
   pythonLibs = with pkgs; [
     zlib.out
@@ -12,21 +12,24 @@ let
   # Override LD_LIBRARY_PATH to load Python libraries
   python' = with pkgs; symlinkJoin {
     name = "python";
-    paths = [ python313 ];
+    paths = [ (if newPython then python314 else python313) ];
     buildInputs = [ makeWrapper ];
     postBuild = ''
-      wrapProgram "$out/bin/python3.13" --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath pythonLibs}"
+      wrapProgram "$out/bin/python3.${if newPython then "14" else "13"}" --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath pythonLibs}"
     '';
   };
 
   packages' = with pkgs; [
     coreutils
+    file
     python'
     uv
     hatch
     ruff
     pyright
     watchexec
+    libffi.dev
+    libuv.dev
 
     (writeShellScriptBin "run-tests" ''
       set -e
@@ -59,9 +62,9 @@ let
   ];
 
   shell' = ''
+    export TZ=UTC
     export PYTHONNOUSERSITE=1
     export PYTHONPATH=""
-    export TZ=UTC
     export COVERAGE_CORE=sysmon
 
     current_python=$(readlink -e .venv/bin/python || echo "")

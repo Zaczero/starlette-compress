@@ -2,7 +2,7 @@ import random
 from typing import Callable
 
 import pytest
-import zstandard
+from compression import zstd
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.requests import Request
@@ -17,10 +17,10 @@ from starlette.types import ASGIApp
 
 from starlette_compress import (
     CompressMiddleware,
-    _parse_accept_encoding,
     add_compress_type,
     remove_compress_type,
 )
+from starlette_compress._utils import parse_accept_encoding
 
 TestClientFactory = Callable[[ASGIApp], TestClient]
 
@@ -39,7 +39,13 @@ def test_compress_responses(test_client_factory: TestClientFactory):
     for encoding in ('gzip', 'br', 'zstd'):
         response = client.get('/', headers={'accept-encoding': encoding})
         assert response.status_code == 200
-        assert response.text == 'x' * 4000
+        try:
+            assert response.text == 'x' * 4000
+        except AssertionError:
+            # TODO: remove after new zstd support in httpx
+            if encoding != 'zstd':
+                raise
+            assert zstd.decompress(response.content) == b'x' * 4000
         assert response.headers['Content-Encoding'] == encoding
         assert int(response.headers['Content-Length']) < 4000
         assert response.headers['Vary'] == 'Accept-Encoding'
@@ -87,10 +93,12 @@ def test_compress_ignored_for_small_responses(test_client_factory: TestClientFac
     'chunk_size',
     [
         1,
-        zstandard.COMPRESSION_RECOMMENDED_OUTPUT_SIZE,  # currently 128KB
+        128 * 1024,  # 128KB
     ],
 )
-def test_compress_streaming_response(test_client_factory: TestClientFactory, chunk_size: int):
+def test_compress_streaming_response(
+    test_client_factory: TestClientFactory, chunk_size: int
+):
     random.seed(42)
     chunk_count = 70
 
@@ -113,20 +121,30 @@ def test_compress_streaming_response(test_client_factory: TestClientFactory, chu
     for encoding in ('gzip', 'br', 'zstd'):
         response = client.get('/', headers={'accept-encoding': encoding})
         assert response.status_code == 200
-        assert len(response.content) == chunk_count * chunk_size
+        try:
+            assert len(response.content) == chunk_count * chunk_size
+        except AssertionError:
+            # TODO: remove after new zstd support in httpx
+            if encoding != 'zstd':
+                raise
+            assert len(zstd.decompress(response.content)) == chunk_count * chunk_size
         assert response.headers['Content-Encoding'] == encoding
         assert 'Content-Length' not in response.headers
         assert response.headers['Vary'] == 'Accept-Encoding'
 
 
-def test_compress_ignored_for_responses_with_encoding_set(test_client_factory: TestClientFactory):
+def test_compress_ignored_for_responses_with_encoding_set(
+    test_client_factory: TestClientFactory,
+):
     def homepage(request: Request) -> StreamingResponse:
         async def generator(content: bytes, count: int):
             for _ in range(count):
                 yield content
 
         streaming = generator(content=b'x' * 400, count=10)
-        return StreamingResponse(streaming, status_code=200, headers={'Content-Encoding': 'test'})
+        return StreamingResponse(
+            streaming, status_code=200, headers={'Content-Encoding': 'test'}
+        )
 
     app = Starlette(
         routes=[Route('/', endpoint=homepage)],
@@ -144,7 +162,9 @@ def test_compress_ignored_for_responses_with_encoding_set(test_client_factory: T
         assert 'Vary' not in response.headers
 
 
-def test_compress_ignored_for_missing_accept_encoding(test_client_factory: TestClientFactory):
+def test_compress_ignored_for_missing_accept_encoding(
+    test_client_factory: TestClientFactory,
+):
     def homepage(request: Request) -> PlainTextResponse:
         return PlainTextResponse('x' * 4000, status_code=200)
 
@@ -162,7 +182,9 @@ def test_compress_ignored_for_missing_accept_encoding(test_client_factory: TestC
     assert response.headers['Vary'] == 'Accept-Encoding'
 
 
-def test_compress_ignored_for_missing_content_type(test_client_factory: TestClientFactory):
+def test_compress_ignored_for_missing_content_type(
+    test_client_factory: TestClientFactory,
+):
     def homepage(request: Request) -> Response:
         return Response('x' * 4000, status_code=200, media_type=None)
 
@@ -220,6 +242,6 @@ def test_compress_registered_content_type(test_client_factory: TestClientFactory
 
 
 def test_parse_accept_encoding():
-    assert _parse_accept_encoding('') == frozenset()
-    assert _parse_accept_encoding('gzip, deflate') == {'gzip', 'deflate'}
-    assert _parse_accept_encoding('br;q=1.0,gzip;q=0.8, *;q=0.1') == {'br', 'gzip'}
+    assert parse_accept_encoding('') == frozenset()
+    assert parse_accept_encoding('gzip, deflate') == {'gzip', 'deflate'}
+    assert parse_accept_encoding('br;q=1.0,gzip;q=0.8, *;q=0.1') == {'br', 'gzip'}

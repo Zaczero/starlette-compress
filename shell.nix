@@ -29,7 +29,6 @@ let
     ruff
     pyright
     watchexec
-    pkg-config
     libffi.dev
     libuv.dev
 

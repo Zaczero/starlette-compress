@@ -30,7 +30,6 @@ let
     watchexec
     libffi.dev
     libuv.dev
-    zstd.dev
 
     (writeShellScriptBin "run-tests" ''
       set -e
@@ -64,6 +63,7 @@ let
 
   shell' = ''
     export TZ=UTC
+    export NIX_ENFORCE_PURITY=0
     export PYTHONNOUSERSITE=1
     export PYTHONPATH=""
     export COVERAGE_CORE=sysmon

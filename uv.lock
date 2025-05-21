@@ -468,7 +468,6 @@ dev = [
     { name = "pytest" },
     { name = "trio" },
     { name = "uvloop" },
-    { name = "zstandard" },
 ]
 
 [package.metadata]
@@ -487,7 +486,6 @@ dev = [
     { name = "pytest" },
     { name = "trio" },
     { name = "uvloop" },
-    { name = "zstandard" },
 ]
 
 [[package]]

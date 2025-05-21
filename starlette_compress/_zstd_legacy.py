@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from starlette.datastructures import MutableHeaders
-from zstandard import ZstdCompressor
+from zstandard import ZstdCompressor  # type: ignore
 
 from starlette_compress._utils import is_start_message_satisfied
 
 TYPE_CHECKING = False
 if TYPE_CHECKING:
     from starlette.types import ASGIApp, Message, Receive, Scope, Send
-    from zstandard import ZstdCompressionChunker
+    from zstandard import ZstdCompressionChunker  # type: ignore
 
 
 class ZstdResponder:
@@ -84,13 +84,13 @@ class ZstdResponder:
                 chunker = ZstdCompressor(level=self.level).chunker(content_length)
 
             # streaming
-            for chunk in chunker.compress(body):
+            for chunk in chunker.compress(body):  # type: ignore
                 await send(
                     {'type': 'http.response.body', 'body': chunk, 'more_body': True}
                 )
             if more_body:
                 return
-            for chunk in chunker.finish():  # type: ignore[no-untyped-call]
+            for chunk in chunker.finish():  # type: ignore
                 await send(
                     {'type': 'http.response.body', 'body': chunk, 'more_body': True}
                 )

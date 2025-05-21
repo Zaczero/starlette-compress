@@ -27,6 +27,7 @@ description = "Compression middleware for Starlette - supporting ZStd, Brotli, a
 keywords = [
   "brotli",
   "compression",
+  "compression.zstd",
   "fastapi",
   "gzip",
   "http",
@@ -42,15 +43,7 @@ requires-python = ">=3.9"
 dynamic = ["version"]
 
 [dependency-groups]
-dev = [
-  "brotlicffi",
-  "coverage",
-  "httpx",
-  "pytest",
-  "trio",
-  "uvloop",
-  "zstandard",
-]
+dev = ["brotlicffi", "coverage", "httpx", "pytest", "trio", "uvloop"]
 
 [build-system]
 requires = ["hatchling"]

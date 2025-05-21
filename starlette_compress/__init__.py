@@ -5,10 +5,11 @@ import re
 from functools import lru_cache
 from io import BytesIO
 from platform import python_implementation
-from typing import TYPE_CHECKING
 
 from starlette.datastructures import Headers, MutableHeaders
 from zstandard import ZstdCompressor
+
+TYPE_CHECKING = False
 
 if python_implementation() == 'CPython' and not TYPE_CHECKING:
     try:

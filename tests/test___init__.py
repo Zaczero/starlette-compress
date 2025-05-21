@@ -2,7 +2,6 @@ import random
 from typing import Callable
 
 import pytest
-from compression import zstd
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.requests import Request
@@ -39,13 +38,17 @@ def test_compress_responses(test_client_factory: TestClientFactory):
     for encoding in ('gzip', 'br', 'zstd'):
         response = client.get('/', headers={'accept-encoding': encoding})
         assert response.status_code == 200
+
         try:
             assert response.text == 'x' * 4000
         except AssertionError:
             # TODO: remove after new zstd support in httpx
             if encoding != 'zstd':
                 raise
+            from compression import zstd
+
             assert zstd.decompress(response.content) == b'x' * 4000
+
         assert response.headers['Content-Encoding'] == encoding
         assert int(response.headers['Content-Length']) < 4000
         assert response.headers['Vary'] == 'Accept-Encoding'
@@ -121,13 +124,17 @@ def test_compress_streaming_response(
     for encoding in ('gzip', 'br', 'zstd'):
         response = client.get('/', headers={'accept-encoding': encoding})
         assert response.status_code == 200
+
         try:
             assert len(response.content) == chunk_count * chunk_size
         except AssertionError:
             # TODO: remove after new zstd support in httpx
             if encoding != 'zstd':
                 raise
+            from compression import zstd
+
             assert len(zstd.decompress(response.content)) == chunk_count * chunk_size
+
         assert response.headers['Content-Encoding'] == encoding
         assert 'Content-Length' not in response.headers
         assert response.headers['Vary'] == 'Accept-Encoding'

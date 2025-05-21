@@ -1,4 +1,5 @@
 import random
+import sys
 from typing import Callable
 
 import pytest
@@ -43,7 +44,7 @@ def test_compress_responses(test_client_factory: TestClientFactory):
             assert response.text == 'x' * 4000
         except AssertionError:
             # TODO: remove after new zstd support in httpx
-            if encoding != 'zstd':
+            if encoding != 'zstd' or sys.version_info < (3, 14):
                 raise
             from compression import zstd
 
@@ -129,7 +130,7 @@ def test_compress_streaming_response(
             assert len(response.content) == chunk_count * chunk_size
         except AssertionError:
             # TODO: remove after new zstd support in httpx
-            if encoding != 'zstd':
+            if encoding != 'zstd' or sys.version_info < (3, 14):
                 raise
             from compression import zstd
 

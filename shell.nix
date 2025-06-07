@@ -1,8 +1,13 @@
-{ newPython ? true }:
+{
+  newPython ? true,
+}:
 
 let
   # Update packages with `nixpkgs-update` command
-  pkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/1021403020cf23ec8ee9e9ac7cbc727093bf0b4b.tar.gz") { };
+  pkgs =
+    import
+      (fetchTarball "https://github.com/NixOS/nixpkgs/archive/1021403020cf23ec8ee9e9ac7cbc727093bf0b4b.tar.gz")
+      { };
 
   pythonLibs = with pkgs; [
     zlib.out
@@ -10,14 +15,18 @@ let
   ];
 
   # Override LD_LIBRARY_PATH to load Python libraries
-  python' = with pkgs; symlinkJoin {
-    name = "python";
-    paths = [ (if newPython then python314 else python313) ];
-    buildInputs = [ makeWrapper ];
-    postBuild = ''
-      wrapProgram "$out/bin/python3.${if newPython then "14" else "13"}" --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath pythonLibs}"
-    '';
-  };
+  python' =
+    with pkgs;
+    symlinkJoin {
+      name = "python";
+      paths = [ (if newPython then python314 else python313) ];
+      buildInputs = [ makeWrapper ];
+      postBuild = ''
+        wrapProgram "$out/bin/python3.${
+          if newPython then "14" else "13"
+        }" --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath pythonLibs}"
+      '';
+    };
 
   packages' = with pkgs; [
     coreutils

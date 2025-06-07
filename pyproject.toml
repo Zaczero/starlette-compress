@@ -1,9 +1,38 @@
 [project]
-authors = [{ name = "Kamil Monicz", email = "kamil@monicz.dev" }]
+name = "starlette-compress"
+requires-python = ">=3.9"
+dependencies = [
+  "brotli>=1; platform_python_implementation == 'CPython'",
+  "brotlicffi>=1; platform_python_implementation != 'CPython'",
+  "starlette",
+  "zstandard>=0.15; python_version<'3.14'",
+]
+description = "Compression middleware for Starlette - supporting ZStd, Brotli, and GZip"
+license = "0BSD"
+readme = "README.md"
+keywords = [
+  "asgi",
+  "brotli",
+  "compression",
+  "deflate",
+  "encoding",
+  "fastapi",
+  "gzip",
+  "http",
+  "middleware",
+  "performance",
+  "response",
+  "starlette",
+  "web",
+  "zstandard",
+  "zstd",
+]
 classifiers = [
+  "Development Status :: 5 - Production/Stable",
   "Environment :: Web Environment",
   "Framework :: AnyIO",
   "Framework :: AsyncIO",
+  "Framework :: FastAPI",
   "Framework :: Trio",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: Zero-Clause BSD (0BSD)",
@@ -14,33 +43,17 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: 3.9",
+  "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
   "Topic :: Internet :: WWW/HTTP :: WSGI :: Middleware",
+  "Topic :: Software Development :: Libraries :: Python Modules",
   "Typing :: Typed",
 ]
-dependencies = [
-  "brotli>=1; platform_python_implementation == 'CPython'",
-  "brotlicffi>=1; platform_python_implementation != 'CPython'",
-  "starlette",
-  "zstandard>=0.15; python_version<'3.14'",
-]
-description = "Compression middleware for Starlette - supporting ZStd, Brotli, and GZip"
-keywords = [
-  "brotli",
-  "compression",
-  "compression.zstd",
-  "fastapi",
-  "gzip",
-  "http",
-  "middleware",
-  "starlette",
-  "zstd",
-]
-license = "0BSD"
-name = "starlette-compress"
-readme = "README.md"
-repository = "https://github.com/Zaczero/starlette-compress"
-requires-python = ">=3.9"
+authors = [{ name = "Kamil Monicz", email = "kamil@monicz.dev" }]
 dynamic = ["version"]
+
+[project.urls]
+Repository = "https://github.com/Zaczero/starlette-compress"
+Issues = "https://github.com/Zaczero/starlette-compress/issues"
 
 [dependency-groups]
 dev = ["brotlicffi", "coverage", "httpx", "pytest", "trio", "uvloop"]
@@ -158,6 +171,7 @@ combine-as-imports = true
 include = ["starlette_compress", "tests"]
 pythonPlatform = "All"
 pythonVersion = "3.9"
+typeCheckingMode = "standard"
 
 [tool.pytest.ini_options]
 addopts = "-ra --quiet --disable-pytest-warnings"
